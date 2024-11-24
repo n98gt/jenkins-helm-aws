@@ -23,6 +23,7 @@ jobs:
           jenkins \
           --values jenkins/values.custom.yaml \
           --namespace jenkins \
+          --create-namespace \
           --atomic
 
         env:
