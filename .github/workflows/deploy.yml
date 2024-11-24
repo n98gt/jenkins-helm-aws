@@ -1,0 +1,33 @@
+# .github/workflows/deploy.yml
+name: Deploy Jenkins Helm Chart
+on:
+  workflow_dispatch
+
+jobs:
+  helm_deploy:
+    runs-on: 'ubuntu-latest'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Write out the kubeconfig info
+        run: |
+          echo ${{ secrets.KUBECONFIG_BASE64 }} | base64 -d > /tmp/config
+
+      - name: Update deployment (using latest chart of actions-runner-controller-charts/auto-scaling-runner-set)
+        run: |
+          helm \
+          upgrade --install \
+          jenkins \
+          jenkins \
+          --values jenkins/values.custom.yaml \
+          --namespace jenkins \
+          --atomic
+
+        env:
+          KUBECONFIG: /tmp/config
+
+      - name: Remove kubeconfig info
+        run: rm -f /tmp/config
+
